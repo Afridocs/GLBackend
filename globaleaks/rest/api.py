@@ -2,7 +2,7 @@ import json
 from twisted.web import resource
 
 #from globaleaks.tip import tipHandler
-#from globaleaks.targets import groupsHandler, targetsHandler
+#from globaleaks.receivers import groupsHandler, receiversHandler
 #from globaleaks.stats import statsHandler
 #from globaleaks.admin import adminHandler
 from globaleaks.rest.handlers import *
