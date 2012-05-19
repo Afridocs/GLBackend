@@ -1,11 +1,11 @@
 from twisted.web import resource
 
-class targetsHandler(resource.Resource):
+class receiversHandler(resource.Resource):
     def __init__(self, name="default"):
         resource.Resource.__init__(self)
 
     def render_GET(self, request):
-        return "Target page."
+        return "Receivers page."
 
     def render_POST(self, request):
         pass
