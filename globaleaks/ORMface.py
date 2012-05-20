@@ -1,3 +1,11 @@
+# the follow file just for remind the programmers requirement
+# ORMface need to became the interface usable from GL objects and SQLAlchemy ORM
+# ORMface need supports storage module extensions
+# ORMface need to create new table and resume previously saved
+# ORMface MAY supports caching in I/O
+# ORMface do not perform transparent commit, the object has the only update data in memory
+# ORMface can implement different protection model by usage requirement (data, config, setting)
+
 import sha
 import random
 from sqlalchemy import Table, Column, Integer
@@ -50,13 +58,13 @@ class MaterialSet(Base):
     __tablename__ = 'materialset'
     id = Column(Integer, primary_key=True)
     tip_id = Column(Integer, ForeignKey('internaltip.id'))
-    material = relationship("Material", backref='materialset')
+    material = relationship("StoredFile", backref='materialset')
 
     description = Column(String)
     def __init__(self, description):
         self.description = description
 
-class Material(Base):
+class StoredFile(Base):
     """
     Represents a material: a file.
     """
@@ -119,7 +127,7 @@ session = Session()
 
 import datetime
 Base.metadata.create_all(engine)
-#material = Material()
+#material = StoredFile()
 internal_tip = InternalTip({'a':'b','c':'d'}, {'a':1}, 42, datetime.datetime.now())
 
 session.add(internal_tip)
