@@ -1,10 +1,12 @@
-# the follow file just for remind the programmers requirement
-# ORMface need to became the interface usable from GL objects and SQLAlchemy ORM
-# ORMface need supports storage module extensions
-# ORMface need to create new table and resume previously saved
-# ORMface MAY supports caching in I/O
-# ORMface do not perform transparent commit, the object has the only update data in memory
-# ORMface can implement different protection model by usage requirement (data, config, setting)
+"""
+ the follow file just for remind the programmers requirement
+ ORMface need to became the interface usable from GL objects and SQLAlchemy ORM
+ ORMface need supports storage module extensions
+ ORMface need to create new table and resume previously saved
+ ORMface MAY supports caching in I/O
+ ORMface do not perform transparent commit, the object has the only update data in memory
+ ORMface can implement different protection model by usage requirement (data, config, setting)
+"""
 
 import sha
 import random
