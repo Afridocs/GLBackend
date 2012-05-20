@@ -65,6 +65,7 @@ class Task:
     """
     Object responsible for handling the creation of delivery and notification
     task to receivers.
+<<<<<<< HEAD
     """
     receiver = None
     type = None
@@ -109,7 +110,6 @@ taskList = [Task('email', 'art'+str(x)+'@fuffa.org', {'a':1, 'b':2}) for x in ra
 deferredList = spawnDeferredTasks(taskList)
 #for deferred, task in zip(deferredList, taskList):
 #    deferred.addCallback(success).addErrback(failed)
-
 #deferred = defer.DeferredList(deferredList)
 #deferred.addCallback(success)
 
