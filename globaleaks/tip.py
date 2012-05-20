@@ -97,9 +97,8 @@ class ReceiverTip(Tip):
     relative_view_count = Column(Integer, default=0)
     relative_download_count = Column(Integer, default=0)
 
-    __mapper_args__ = {
-                'polymorphic_identity':'tip',
-                    }
+    __mapper_args__ = {'polymorphic_identity':'tip'}
+
     def increment_visit(self):
         pass
 
