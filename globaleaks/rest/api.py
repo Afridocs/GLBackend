@@ -9,7 +9,8 @@ from globaleaks.rest.handlers import *
 from globaleaks.rest.utils import processChildren
 
 class RESTful(resource.Resource):
-    API = {'node': nodeHandler,
+    API = {
+       'info': nodeHandler,
        'submission': submissionHandler,
        'tip': tipHandler,
        'admin': {'receivers': adminReceiversHandler,
