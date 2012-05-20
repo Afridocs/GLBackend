@@ -19,32 +19,21 @@ This interface provide useful feature to interact with the database
 """
 
 class DBIO():
-Base.metadata.create_all(engine)
 
     def __init__(self):
         _Base = declarative_base()
-        _session = Session()
+        _session = Session(autocommit=True)
         _engine = engine = create_engine('sqlite:///test.db', echo=True)
+        _Base.metadata.create_all(_engine)
 
         return (_Base, _session, _engine)
 
+    def resume(self, ObjType, fieldname, fieldvalue)
+        """
+        resume function, get an object from the saved ORM or
+        open a new one as objType requested. field name and value
+        are optional, usable to search a specific instance.
 
-    def resume_object
-
-    def perform_query
-
-    """
-    Register object under operation, need to be used before the object access
-    """
-    def register_oops
-
-    """
-    Release the registered objects
-    """
-    def release_oops
-
-    """
-    Commit in every object registered, dumping modification.
-    """
-    def commit_registered_o
-
+        return an istance of objType or None
+        """
+        pass

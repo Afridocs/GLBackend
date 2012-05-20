@@ -35,7 +35,9 @@ submission. group are addressed by their ID (POST only)
 
 `/submission/<submission_id>/finalize`
 
-completes the submission in progress and returns a receipt (POST only)
+completes the submission in progress, **give to the server the receipt secret**
+and confirm the receipt (or answer with a part of them). settings dependent.
+(POST only)
 
 `/submission/<submission_id>/upload_file`
 
@@ -295,17 +297,31 @@ file descriptor, every completed file upload is always stored and represented wi
         checks if all the 'Required' fields are present, then 
         completes the submission in progress and returns a receipt.
 
+        * Request:
+          { 'choosen-Receipt': <String, user selected receipt> }
+
         * Response:
+          If the receipt is fine with the node requisite, and is saved as 
+          identificative for the WB Tip, is echoed back to the client
           Status Code: 201 (created)
           { 'Receipt': <String, receipt value> }
 
-        _ If the check fail
+        _ If the receipt is expected but is not provided, The submission is
+          finalized, and the server create a receipt:
+          Status Code: 417 (Expectation Failed)
+          { 
+            'error-code': <Int>, 
+            'error-message': 'Invalid receipt requested',
+            'Receipt': <String, receipt value> 
+          }
+
+        _ If the field check fail
           Status Code: 406 (Not Acceptable)
-          { 'error-code': <Int>, 'error-message': <String, error description in detail> }
+          { 'error-code': <Int>, 'error-message': 'fields requirement not respected' }
 
         _ If submission_id is invalid
           Status Code: 204 (No Content)
-          { 'error-code': <Int>, error-message: 'submission ID is invalid' }
+          { 'error-code': <Int>, 'error-message': 'submission ID is invalid' }
 
 
 `/submission/<submission_id>/upload_file`, 
