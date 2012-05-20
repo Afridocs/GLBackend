@@ -8,10 +8,8 @@ from sqlalchemy import create_engine
 
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('sqlite:///test.db', echo=True)
-
-Session = sessionmaker(bind=engine)
-Base = declarative_base()
+# Base = declarative_base()
+(Base, engine) = DBIO()
 
 class InternalTip(Base):
     """
@@ -82,15 +80,6 @@ class Tip(Base):
         self.internal_id = internal_id
         self.gen_address()
 
-    def gen_address(self):
-        # XXX DANGER CHANGE!!
-        self.address = sha.sha(''.join(str(random.randint(1,100)) for x in range(1,10))).hexdigest()
-        print self.address
-        self.password = ""
-
-    def add_comment(self, data):
-        pass
-
 class ReceiverTip(Tip):
     total_view_count = Column(Integer, default=0)
     total_download_count = Column(Integer, default=0)
@@ -115,6 +104,12 @@ class WhistleblowerTip(Tip):
     def add_material(self):
         pass
 
+"""
+Execution flow test
+"""
+# engine = create_engine('sqlite:///test.db', echo=True)
+
+Session = sessionmaker(bind=engine)
 session = Session()
 
 import datetime
