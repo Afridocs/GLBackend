@@ -39,29 +39,36 @@ def _exists(self, id):
     """
     return False
 
-def add_material(self, id, material):
+def add_material(self, material):
     """
     Adds the material to the specified submission id.
+
+    :material: append the material to the material set
     """
-    if not self._exists(id):
-        return False
     self.materialset.append(material)
     return True
 
-def submit_fields(self, id, fields):
-    if not self._exists(id):
-        return False
+def submit_fields(self, fields):
+    """
+    Add the fields to the submission.
+
+    :fields: a dict containing the submitted fields
+    """
     self.fields = fields
     return True
 
-def add_group(self, id, group):
-    if not self._exists(id):
-        return False
+def add_group(self, group):
+    """
+    Adds the group to the list of groups.
+
+    :group: the group to be appendend to the group array.
+    """
     self.groups.append(group)
     return True
 
-def finalize(self, id):
-    if not self._exists(id):
-        return False
+def finalize(self):
+    """
+    Finalize the submission and create data inside of the database.
+    """
     return True
 
