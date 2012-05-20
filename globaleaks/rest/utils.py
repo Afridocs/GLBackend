@@ -26,4 +26,3 @@ def processChildren(res, api):
             if (len(api) - 1) == i:
                 return res
 
-
