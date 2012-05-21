@@ -30,6 +30,8 @@ guides as specified in PEP.
 
                                        - Tim Peters, The Zen of Python
 
+If you need to be reminded of this, you can always import this ;).
+
 Code Structure
 ---------
 
