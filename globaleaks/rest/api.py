@@ -22,10 +22,18 @@ class RESTful(resource.Resource):
     }
 
     def __init__(self):
+        """
+        Create the root of the restful interface and create the children
+        handlers for handlers that don't take a parameter.
+        """
         resource.Resource.__init__(self)
         processChildren(self, self.API)
 
     def getChild(self, path, request):
+        """
+        When trying to access a child that does not exist return an empty
+        resource.
+        """
         print path, request
         return resource.Resource()
 

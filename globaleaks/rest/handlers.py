@@ -1,3 +1,11 @@
+"""
+    Handler
+    *******
+
+    This contains all of the handlers for the REST interface.
+    Should not contain any logic that is specific to the operations to be done
+    by the particular REST interface.
+"""
 import json
 from twisted.web import resource
 from globaleaks.rest.utils import processChildren
