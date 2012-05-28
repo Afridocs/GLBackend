@@ -5,48 +5,37 @@ from twisted.internet import reactor
 
 import itertools
 
-def spawnDeferredTasks(taskList):
-    """
-    Run several Tasks concurrently.
-    """
-    def callback(result, task):
-        print "I got callback spawn %s" % result
-        #print task.receiver
-        if len(taskList) > 0:
-            task = taskList.pop(0)
-            print len(taskList)
-            task.startTask()
+class TaskQueue(object):
+    def __init__(self, maxconcurrent=10, subTask=None):
+        self.maxconcurrent = maxconcurrent
+        self._running = 0
+        self._queued = []
 
-    def errback(reason, task):
-        #print "I got errback spawn %s" % reason
-        #print task
-        # XXX Write to log that the first work failed
-        # XXX add maximum amount of retries
-        # taskList.append(task)
-        try:
-            task = taskList.pop(0)
-            task.startTask()
-        except:
-            pass
+    def _run(self, r):
+        self._running -= 1
+        if self._running < self.maxconcurrent and self._queued:
+            workunit, d = self._queued.pop(0)
+            self._running += 1
+            actuald = workunit.startTask().addBoth(self._run)
+        if isinstance(r, failure.Failure):
+            r.trap()
 
-    deferredList = []
-    for task in taskList:
-        deferred = task.deferred
-        deferred.addCallback(callback, task).addErrback(errback, task)
+        print "Callback fired!"
+        print r['start_time']
+        print r['end_time']
+        print r['run_time']
+        print repr(r)
+        return r
 
-        deferredList.append(deferred)
+    def push(self, workunit):
+        if self._running < self.maxconcurrent:
+            self._running += 1
+            workunit.startTask().addBoth(self._run)
+            return
+        d = defer.Deferred()
+        self._queued.append((workunit, d))
+        return d
 
-    for i in range(min(10, len(taskList))):
-        try:
-            task = taskList.pop(0)
-            #print "in range shit"
-            #print task.receiver
-            #print len(taskList)
-            task.startTask()
-        except:
-            print i
-
-    return deferredList
 
 class DummyMethod:
     def __init__(self, type):
@@ -65,7 +54,6 @@ class Task:
     """
     Object responsible for handling the creation of delivery and notification
     task to receivers.
-<<<<<<< HEAD
     """
     receiver = None
     type = None
@@ -77,7 +65,6 @@ class Task:
         self.notify_method = self._get_notification_method()
         self.delivery_method = self._get_delivery_method()
         self.tip = tip
-        self.deferred = defer.Deferred()
         #self.deferred.addCallbacks(self.callback, self.errback)
 
     def _get_delivery_method(self):
@@ -92,12 +79,13 @@ class Task:
     def doneTask(self):
         self.delivery_method.deliver(self.receiver)
         self.notify_method.notify(self.receiver)
-        self.deferred.callback(str(self.receiver))
+        return self.d.callback(str(self.receiver))
 
     def startTask(self):
+        self.d = defer.Deferred()
         print "Starting task %s" % (self.receiver)
         reactor.callLater(1, self.doneTask)
-        return self.deferred
+        return self.d
 
 def success(aa):
     print "DOne!"
@@ -106,11 +94,10 @@ def failed(bbb):
     print "Failed"
 
 taskList = [Task('email', 'art'+str(x)+'@fuffa.org', {'a':1, 'b':2}) for x in range(0, 20)]
+taskpool = TaskQueue(4)
 
-deferredList = spawnDeferredTasks(taskList)
-#for deferred, task in zip(deferredList, taskList):
-#    deferred.addCallback(success).addErrback(failed)
-#deferred = defer.DeferredList(deferredList)
-#deferred.addCallback(success)
+for task in taskList:
+    print "aaaa"
+    taskpool.push(task)
 
 reactor.run()

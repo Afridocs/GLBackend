@@ -10,9 +10,9 @@ from globaleaks.rest.utils import processChildren
 
 class RESTful(resource.Resource):
     API = {
-       'info': nodeHandler,
-       'submission': submissionHandler,
-       'tip': tipHandler,
+       'node': nodeHandler,
+       'submission': submissionHandler, # wildcard handling
+       'tip': tipHandler,               # wildcard handling
        'admin': {'receivers': adminReceiversHandler,
                  'config':  {'node': nodeConfigHandler,
                              'delivery': deliveryConfigHandler,
@@ -42,3 +42,31 @@ if __name__ == "__main__":
     from twisted.web import server
     reactor.listenTCP(8082, server.Site(RESTful()))
     reactor.run()
+
+
+def processChildren(res, api):
+    """
+    Recursion is beauty.
+    """
+    for i, a in enumerate(api.items()):
+        path, handler = a
+        #print i
+        if isinstance(handler, dict):
+            #print "Got the dict :("
+            #print "Res: %s" % res
+            #print "Path: %s" % path
+            #print "Handler: %s" % handler
+            new_res = resource.Resource()
+            if hasattr(res, 'path'):
+                new_res.path = res.path
+            res.putChild(path, processChildren(new_res, handler))
+
+        else:
+            #print "Got the handler ;)"
+            #print "Res: %s" % res
+            #print "Path: %s" % path
+            #print "Handler: %s" % handler
+            res.putChild(path, handler())
+            if (len(api) - 1) == i:
+                return res
+
