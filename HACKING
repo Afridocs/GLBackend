@@ -38,7 +38,35 @@ Code Structure
 - HACKING
     The document you are currently reading.
 
-TODO (vecna should have notes about this)
+- REST-spec.md
+    Specification of RESTful interface. required to implement compatible
+    client, and understand which users profile can interact with GL
+    (all user, admin auth, receiver auth, whistleblower auth)
+
+- globaleaks/
+    The code
+
+- globaleaks/CodeStruct.md
+    General description of the .py files present in the path
+    useful details for everyone want to understand the entire flow.
+
+- globaleaks/core
+- globaleaks/rest
+- globaleaks/storage 
+- globaleaks/db
+    Static section of GLBackend, those part would be designed with
+    public interfaces, useble by all the other GLB sections
+
+- globaleaks/delivery
+- globaleaks/notify
+    module for different delivery and notification methods,
+    can be a nice place to start in customizing GLBackend
+
+- docs/
+    REST definition, Object specification, workflow. 
+    publically those file can be exported using:
+    https://github.com/globaleaks/GLBackend/wiki/
+
 
 Style guide
 -----------
@@ -176,9 +204,6 @@ For a better overview on how to write docstrings consult: PEP-257
 Naming convention
 .................
 
-TODO this probably needs some reworking to fit with the Twisted naming
-conventions.
-
 Avoid using 'l' (lowercase letter el), 'O' (uppercase letter oh) or
 I (uppercase letter eye) as single character variable names.
 
@@ -192,12 +217,12 @@ Note: When using abbreviations in CapWords, capitalize all the letters
       of the abbreviation.  Thus HTTPServerError is better than
       HttpServerError.
 
-Exception names should follow the class names convention as exceptions
-should be classes.
-
 Function names should be all lowercase with words separated by underscores
 to improve readability. The same goes for Global Variable names.
 
 Method names should be all lowercase. Non-public methods should start with
 an underscore. The same applies to instance variables.
 
+Exception names should follow the class names convention as exceptions
+should be classes, like the extended Twisted classess (they use Method
+name InCamelCase)
