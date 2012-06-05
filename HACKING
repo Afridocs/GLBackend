@@ -67,6 +67,12 @@ Code Structure
     publically those file can be exported using:
     https://github.com/globaleaks/GLBackend/wiki/
 
+- docs/Modules.md
+    Definition of pluggable classes structures.
+    the classes Notification and Delivery are intended
+    to extend node capability and features for 
+    receivers.
+
 
 Style guide
 -----------
