@@ -117,9 +117,11 @@ set in the specific resources
 For setting up delivery and notification modules. perform host dependent
 configuration.
 
-`/admin/config/storage`
+`/admin/storage`
+`/admin/filtering`
 
-For setting up storage methods.
+For setting up storage technology, implemented by an extensible class.
+and for configuring filtering policies, implemented by extensible class.
 
 # Synthesis 
 
@@ -146,6 +148,7 @@ For setting up storage methods.
 `/admin/delivery`
 `/admin/notification/`
 `/admin/storage/`
+`/admin/filtering`
 
 # Data Object involved
 
@@ -712,19 +715,22 @@ to be configured by the user.
 
 `/admin/notification/`
 `/admin/delivery/`
-`/admin/storage/`
 
-These interface show the available modules for notification, delivery and storage.
+These interface show the available modules for notification and delivery.
 The admin can enable them and configure the host dependent options. 
-<ModuleAdminConfig> is the datatype defined in the section before this.
+<ModuleAdminConfig> is the datatype defined in the section before this 
+(contain some fixed field useful to be printed by the client, a boolean
+value making enable|disale module, and the entire HTML FORM expected to be 
+filled, or already filled).
+These interface has been separated from the next (storage and filtering) 
+because notification & delivery shall contain receiver interaction and
+selection, therefore has been splitted to easily support further changes.
 
     :GET
         * Response:
             { 'notification-method': <ModuleAdminConfig> }
           or
             { 'delivery-method': <ModuleAdminConfig> }
-          or
-            { 'storage-method': <ModuleAdminConfig> }
 
         * Response:
           Status: 200 (Accepted)
@@ -734,11 +740,38 @@ The admin can enable them and configure the host dependent options.
             { 'notification-method': <ModuleAdminConfig> }
           or
             { 'delivery-method': <ModuleAdminConfig> }
-          or
-            { 'storage-method': <ModuleAdminConfig> }
 
         * Response:
           Status: 202 (Modified)
+
+
+`/admin/storage/`
+`/admin/filtering/`
+
+Those interface export for the administrator the configuration fields for the
+modules extending both storage classes and filtering classes.
+storage shall handle policy and logic in file and database access, filtering 
+rules the checks applied in the uploaded files (antivirus, antispam, anomaly
+detection)
+
+    :GET
+        * Response:
+            { 'storage-method': <ModuleAdminConfig> }
+          or
+            { 'filter-method': <ModuleAdminConfig> }
+
+        * Response:
+          Status: 200 (Accepted)
+
+    :POST
+        * Request:
+            { 'storage-method': <ModuleAdminConfig> }
+          or
+            { 'filter-method': <ModuleAdminConfig> }
+
+        * Response:
+          Status: 200 (Accepted)
+
 
 `/admin/node`
 

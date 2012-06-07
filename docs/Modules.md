@@ -42,7 +42,7 @@ class NotificationImplementation(Notification):
         ModuleDataStruct is described in REST-spec.md
         """
     def set_receiver_opt():
-        retur ModuleDataStruct
+        return ModuleDataStruct
         """
         Same logic of admin_opt, but related for receiver specific 
         settings
@@ -50,8 +50,16 @@ class NotificationImplementation(Notification):
 
     def do_notify():
         """
-        Called by the task handler, perform the notification
+        Called by the task handler, perform the notification, this option is
+        called once for every receivers configured
         """
+
+    def notification_complete():
+        """
+        Called when the last receiver has been handled, useful to 
+        execute cleanup
+        """
+
     def get_log():
         """
         The log are collected in Notification superclass, and returned 
@@ -72,11 +80,69 @@ class DeliveryImplementation(Delivery):
 
     def get_receiver_opt(ModuleDataStruct):
     def set_receiver_opt():
-        retur ModuleDataStruct
+        return ModuleDataStruct
 
     def do_delivery():
+    def delivery_complete():
     def get_log():
 
 ## Storage modules specification
+## Test under development
 
-TODO
+Try to abstract the 'file' concept: there are a container (folder),
+with some univoke identified (filename) with data inside.
+
+Storage Abstract class need to expose the following operations:
+
+   get name of the plugin,
+
+   init system environment 
+     (checks distributed filesystem, checks database password)
+     executed every time GLBackend start
+
+   export confguration
+     (every time admin is GETting module settings)
+     <ModuleAdminConfig>
+
+
+   get statistic about usage
+
+   put a triple (folder, filename, file) in the storage
+     (or: session-ID, fileID, file)
+     (or: receiver-id, encryptted-filename, encrypted-file)
+   get a file having the folder+filename
+   get the list of filenames having a folder
+   delete a file having the folder+filename
+   delete a folder
+
+### The test
+
+Actually the idea is to wrap the File object, and return a File 
+object from the method "get a file having folder+filename". This
+may permit to relay on FileStream instead of huge memory buffer 
+filled with binary data. This mean that all the storag operation
+should be performed on standard File interface, but require just
+a different open (get) and listing method.
+
+
+## Filter modules specification
+
+Filter abstract class need to expose the following operations:
+
+    collect a file, contextualized by submission data (ID)
+    by a datetime. a function that simply "collect", parse,
+    extract metadata.
+
+    get evaluation: True|False answer expressing the status
+    of the analysis.
+
+    get file modified: (Optional) if a file maybe modified by 
+    the plugin and the evaluation has returned True, this
+    function return 
+
+### Plausible use for filter modules
+
+  * antispam
+  * antivirus checks on submitted file
+  * metadata cleaning/extraction
+
