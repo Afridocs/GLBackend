@@ -234,6 +234,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
                             },
                'description': <LocalDict, descrption headline>,
                'public_site': <string, url>,
+               'tor2web': <String, public URL of tor2web trusted entry point, if available>,
                'hidden_service': <string, url.onion>,
              }
         example of a result:
@@ -261,6 +262,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
                           ]
                'description': 'This node aggregate expert of the civil society in fighting the crystal meth, producted by the infamous Heisenberg',
                'public_site': 'http://fightmeth.net',
+               'tor2web': 'https://vbg7fb8yuvewb9vuww.tor2web.org',
                'hidden_service': 'vbg7fb8yuvewb9vuww.onion',
               }
     :POST
@@ -606,6 +608,7 @@ to be configured by the user.
        * Response:
          Stauts Code: 200 (OK)
          {
+             'url-schema': <String, url [tor2web|https|.onion] used, and relative path>
              'tip-list': { [ 'tip-token': <T_id>, 'tip-title': <String> ],
                            [ 'tip-token': <T_id>, 'tip-title': <String> ] },
              'notification-method': { <ModuleDataStruct>, <ModuleDataStruct>, ... },
