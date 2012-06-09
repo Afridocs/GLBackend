@@ -1,5 +1,8 @@
 ## Code Structure
 
+In the file, we can specify the Threaded logic, this shall be helpful, twisted and
+sqlalchemy has not to run in the same thread.
+
 /
 
     __init__.py
@@ -39,6 +42,7 @@ rest/
         for Receivers and WB 
 
 notify/
+
 
 
 delivery/
