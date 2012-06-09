@@ -27,21 +27,41 @@ class BodyReceiver(Protocol):
 
 class SubmissionClientEmulationTestCase(unittest.TestCase):
     agent = Agent(reactor)
+
+    def _create_submission(self):
+        d = self.agent.request('POST',
+                'http://127.0.0.1:31415/submission', None, None)
+
+        def cbFinished(data):
+            parsed = json.loads(data)
+            if not self.submission_id:
+                self.submission_id = parsed['submission_id']
+
+        def cbResponse(response):
+            finished = Deferred()
+            response.deliverBody(BodyReceiver(finished))
+            finished.addCallback(cbFinished)
+            return finished
+
+        d.addCallback(cbResponse)
+        return d
+
     def setUp(self):
         self.port = reactor.listenTCP(31415, api.GLBackendAPI(), interface="127.0.0.1")
         if debug:
             log.startLogging(sys.stdout)
-        self.addCleanup(self.port.stopListening)
-        self.submission_id = ""
+        self.submission_id = None
+        return self._create_submission()
 
-    def _do_submission_operation(self, data, operation, body=None,
-            datafunction=None, responsefunction=None):
-        url = 'http://127.0.0.1:31415/submission/'+str(self.submission_id)+'/'+str(operation)
-        d = self.agent.request('POST',
-                url,
-                None, body)
+    def tearDown(self):
+        self.port.stopListening()
 
-        def cbFinished(data):
+    def _do_operation(self, operation, method="POST", body=None,
+                      datafunction=None, responsefunction=None):
+        url = 'http://127.0.0.1:31415/' + operation
+        d = self.agent.request(method, url, None, body)
+
+        def cbFinished(arg, data):
             if datafunction:
                 datafunction(data)
             return data
@@ -57,39 +77,47 @@ class SubmissionClientEmulationTestCase(unittest.TestCase):
         d.addCallback(cbResponse)
         return d
 
-    def test_create_submission(self):
-        d = self.agent.request('POST',
-                'http://127.0.0.1:31415/submission', None, None)
-
-        def cbFinished(data):
-            parsed = json.loads(data)
-            self.submission_id = parsed['submission_id']
-
-        def cbResponse(response):
-            finished = Deferred()
-            response.deliverBody(BodyReceiver(finished))
-            finished.addCallback(cbFinished)
-            return finished
-
-        d.addCallback(cbResponse)
-        return d
-
-    def test_add_fields(self):
+    def test_submit_fields(self):
         def rfunction(response):
             self.assertEqual(response.code, 202)
 
-        d = self.test_create_submission()
-        d.addCallback(self._do_submission_operation, "submit_fields",
-                responsefunction=rfunction)
-        return d
+        operation = 'submission/'+str(self.submission_id)+'/submit_fields'
+        self._do_operation(operation, responsefunction=rfunction)
 
-    def test_add_fields_to_invalid_submission(self):
-        self.submission_id = "invalid"
+    def test_submit_fields_to_invalid_submission(self):
         def rfunction(response):
             self.assertEqual(response.code, 204)
+
         def dfunction(data):
             parsed = json.load(data)
             self.assertEqual(parsed['error-message'], "submission ID is invalid")
+            return
 
-        self._do_submission_operation(None, "submit_fields", datafunction=dfunction, responsefunction=rfunction)
+        operation = 'submission/invalid/submit_fields'
+        self._do_operation(operation, datafunction=dfunction, responsefunction=rfunction)
+
+    def test_add_group(self):
+        def rfunction(response):
+            self.assertEqual(response.code, 202)
+
+        operation = 'submission/'+str(self.submission_id)+'/add_group'
+        self._do_operation(operation, responsefunction=rfunction)
+
+
+    def test_upload_file(self):
+        def rfunction(response):
+            self.assertEqual(response.code, 202)
+
+        def dfunction(data):
+            parsed = json.load(data)
+            a_keys = ['filename', 'comment', 'size', 'content-type']
+            b_keys = parsed.keys()
+            a_keys.sort()
+            b_keys.sort()
+            self.assertEqual(a_keys, b_keys)
+            return
+
+        operation = 'submission/'+str(self.submission_id)+'/upload_file'
+        self._do_operation(operation, datafunction=dfunction, responsefunction=rfunction)
+
 

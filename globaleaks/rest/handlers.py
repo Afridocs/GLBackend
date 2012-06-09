@@ -7,16 +7,14 @@
     by the particular REST interface.
 """
 import json
+
 import cyclone.web
 from twisted.web import resource
 from globaleaks.config import config
 from globaleaks.submission import submission_factory
 
 __all__ = ['nodeHandler','submissionHandler',
-           'adminReceiversHandler', 'nodeConfigHandler',
-           'deliveryConfigHandler', 'storageConfigHandler',
-           'addCommentHandler', 'pertinenceHandler',
-           'downloadMaterialHandler', 'addDescriptionHandler', 'tipHandler']
+           'adminHandler', 'tipHandler', 'receiverHandler']
 
 class GLHandler(cyclone.web.RequestHandler):
     def generic_error(self):
@@ -27,109 +25,158 @@ class nodeHandler(GLHandler):
         self.write(config.node_info)
 
 class submissionHandler(GLHandler):
+    """
+    Responsible for handling everything that goes under the /submission
+    tree.
+    """
     def initialize(self, action=None):
         self.action = action
         print action
+
+    def _parse_request(self):
+        try:
+            request = json.loads(self.request.body)
+        except:
+            request = None
+        return request
 
     def invalid_submission(self):
         self.set_status(204)
         r = {'error-code': 1, 'error-message': 'submission ID is invalid'}
         self.write(r)
 
-    def create_submission(self):
+    def get(self, submission_id=None):
         """
-        This creates an empty submission and returns the ID to be used when
-        referencing it as a whistleblower. ID is a random string.
+        Process GET requests:
+            * /submission
+            * /submission/<ID>
+            * /submission/<ID>/upload_file
         """
-        self.write(submission_factory.create())
+        if submission_id:
+            submission = submission_factory.submissions.get(submission_id)
+            if submission is None:
+                self.invalid_submission()
+            else:
+                process = getattr(self, "get_" + self.action)
+                response = process(submission)
+        else:
+            self.set_status(501)
 
-    def submit_fields(self, submission):
-        """
-        does the submission of the fields that are supported by the node in
-        question and update the selected submission_id (POST only)
-        """
-        data = self.get_argument("body", None)
-        submission.submit_fields(data)
-        self.set_status(202)
-
-
-    def add_group(self, submission):
-        """
-        adds a group to the list of recipients for the selected submission.
-        group are addressed by their ID (POST only)
-        """
-
-    def finalize(self, submission):
-        """
-        completes the submission in progress, give to the server the receipt
-        secret and confirm the receipt (or answer with a part of them).
-        settings dependent. (POST only)
-        """
-        pass
-
-    def upload_file(self, submission):
-        """
-        upload a file to the selected submission_id (PUT only)
-        """
+    def get_submission_status(self, submission):
+        self.set_status(200)
+        self.write(submission.get_status())
 
     def post(self, submission_id=None, other=None):
+        """
+        Process POST requests:
+            * /submission
+            * /submission/<ID>/submit_fields
+            * /submission/<ID>/add_group
+            * /submission/<ID>/finalize
+            * /submission/<ID>/upload_file
+        """
         response = ""
         if not submission_id:
-            response = self.create_submission()
+            response = self.post_create_submission()
         elif self.action:
             submission = submission_factory.submissions.get(submission_id)
             if submission is None:
                 self.invalid_submission()
             else:
-                process = getattr(self, self.action)
-                response = process(submission)
+                request = self._parse_request()
+                process = getattr(self, "post_" + self.action)
+                response = process(submission, request)
 
-    def get(self, submission_id=None):
-        self.write(str(self.__class__))
+    def post_create_submission(self):
+        """
+        This creates an empty submission and returns the ID to be used when
+        referencing it as a whistleblower. ID is a random string.
+        """
+        self.set_status(201)
+        self.write(submission_factory.create())
 
-class adminReceiversHandler(GLHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post_submit_fields(self, submission, request):
+        """
+        does the submission of the fields that are supported by the node in
+        question and update the selected submission_id (POST only)
+        """
+        submission.submit_fields(request)
+        self.set_status(202)
 
-class nodeConfigHandler(GLHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
 
-class deliveryConfigHandler(GLHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post_add_group(self, submission, request):
+        """
+        adds a group to the list of recipients for the selected submission.
+        group are addressed by their ID (POST only)
+        """
+        submission.add_group(request)
+        self.set_status(202)
 
-class storageConfigHandler(GLHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post_finalize(self, submission, request):
+        """
+        completes the submission in progress, give to the server the receipt
+        secret and confirm the receipt (or answer with a part of them).
+        settings dependent. (POST only)
+        """
+        submission.finalize(request)
 
-# Tip Handlers
+    def post_upload_file(self, submission, request):
+        """
+        upload a file to the selected submission_id (PUT only)
+        """
+        submission.upload_file(request)
 
-class addCommentHandler(GLHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__) + "<br>" + parameter)
+class adminHandler(GLHandler):
+    def post(self):
+        """
+        Process these POST requests:
+            * /admin/receivers/
+            * /admin/notification/
+            * /admin/delivery/
+            * /admin/storage/
+            * /admin/node/
+        """
+        pass
 
-class pertinenceHandler(GLHandler):
     def get(self):
-        self.write(str(self.__class__) + "<br>" + parameter)
+        """
+        Process GET requests:
+            * /admin/receivers/
+            * /admin/notification/
+            * /admin/delivery/
+            * /admin/storage/
+            * /admin/node/
+        """
+        pass
 
-class downloadMaterialHandler(GLHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__) + "<br>" + parameter)
 
-class addDescriptionHandler(GLHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__))
-
-tipAPI = {'download_material': downloadMaterialHandler,
-          'add_comment': addCommentHandler,
-          'pertinence': pertinenceHandler,
-          'add_description': addDescriptionHandler}
-
+class receiverHandler(GLHandler):
+    def get(self):
+        """
+        Process this GET:
+            * /receiver/<ID>/overview
+        """
+    def post(self):
+        """
+        Process this POST:
+            * /receiver/<ID>/overview
+        """
 
 class tipHandler(GLHandler):
+    def post(self):
+        """
+        Process the POST requests:
+            * /tip/<ID>/add_comment
+            * /tip/<ID>/finalize_update
+            * /tip/<ID>/pertinence
+
+        """
+        pass
     def get(self):
-        self.write("tip")
-
-
-
+        """
+        Process the GET requests:
+            * /tip/<ID>
+            * /tip/<ID>/update_file
+            * /tip/<ID>/download_material
+        """
+        pass
