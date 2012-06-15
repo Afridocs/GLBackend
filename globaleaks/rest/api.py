@@ -1,10 +1,6 @@
 import json
 import cyclone.web
 
-#from globaleaks.tip import tipHandler
-#from globaleaks.receivers import groupsHandler, receiversHandler
-#from globaleaks.stats import statsHandler
-#from globaleaks.admin import adminHandler
 from globaleaks.rest.handlers import *
 
 class GLBackendAPI(cyclone.web.Application):

@@ -181,18 +181,35 @@ file descriptor, every completed file upload is always stored and represented wi
          . anonymity enforced ?
          . are the receivers identity published ?
 
-<ModuleDataStruct>, is an object used to describe the current status of a 
+<ModuleDataStruct>
+<ModuleAdminConf>
 
-    [ 'name': <String>, 
-      'active': <Bool>, 
-      'options': <Form fields>,
-      'service-message': <String>
+<ModleDataStruct> and <ModuleAdminConfig> are basically the same object,
+(implemented in globaleaks/core/datatypes.py) object of ModuleConf.
+ModuleConf objects are JSON description useful to present at the user
+(admin or recever) the amount of available field. Those objects can be
+filled properly, verified and accepted by the extension plugin. 
+
+the fields that NEED to be present in the json struct, 
+object ModuleAdminConf, are:
+
+    The data sets by administrator:
+
+    [ 'name': <String, the short name of the module>, 
+      'activate': <Bool, the admin selection of enable the module or not>, 
+      'receiver-disable': <Bool, can the receiver disable this module ?>,
+      'service-message': <String, the short description of the message, or hiht about the activation and options>
+        # optional
+      'options': <Json object with empty field or default values>,
     ]
 
-<ModuleAdminConfig>, basically has the same field of <ModuleDataStruct>, except:
-    . it contains the field that need to be configured once per node, by the admin
-      the 'options' fields therefore differ from the 'options' in ModuleDataStruct
-    . the active: True|False cause the activation of the module for the receiver
+IF the admin has activate the module and 
+IF the admin permit the receiver to enable/disable the module
+IF the module supports receiver options,
+
+then a new ModuleConf object would be used, and is called ModuleDataStruct,
+contains the 'activate' field with a default set in the module, and the options
+available for the receiver.
 
 ModuleAdminConfig is used in the REST of /admin/* path, ModuleDataStruct in /receiver/*
 
@@ -597,7 +614,11 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
 
 This interface expose all the receiver related info, require one valid Tip authentication.
 This interface returns all the options available for the receiver (notification and delivery)
-and contain the require field (empty or compiled)
+and contain the optional fields (empty or compiled), this interface permit the suspend and the
+deletetion of the receiver from the list.
+
+suspent is a temporary status that disable notification and delivery.
+delete clean all receiver data and destinated material, submission.
 
 depends from the node administator choose and delivery/notification extension, the capability
 to be configured by the user.
@@ -613,14 +634,17 @@ to be configured by the user.
                            [ 'tip-token': <T_id>, 'tip-title': <String> ] },
              'notification-method': { <ModuleDataStruct>, <ModuleDataStruct>, ... },
              'delivery-method': { <ModuleDataStruct>, <ModuleDataStruct>, ... },
-             'receiver-properties': <RDict>
+             'receiver-properties': <RDict>,
+             'suspended-status': <Bool>
          }
 
     :POST
        * Request:
          {
              'notification-method': { <ModuleDataStruct>, <ModuleDataStruct> },
-             'delivery-method': { <ModuleDataStruct>, <ModuleDataStruct> }
+             'delivery-method': { <ModuleDataStruct>, <ModuleDataStruct> },
+             'suspend-request': <Bool>,
+             'delete-request': <Bool>
          }
 
        * Response:
