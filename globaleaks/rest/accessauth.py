@@ -2,8 +2,6 @@ import datetime
 
 # TODO: Log system
 # TODO: the DBIO.resume is wrong, acctually. The goal:
-#       DO NOT IMPORT SQLALCHEMY HERE
-#       DO NOT IMPORT SQLALCHEMY HERE
 
 def verify_whistleblower(receipt):
     """
@@ -20,7 +18,7 @@ def verify_whistleblower(receipt):
         NodeO.wrong_wb_auth = (1 + NodO.wrong_wb_auth)
         return None
 
-    # Field update 
+    # Field update
     NodO.wb_access_count = (1 + NodO.wb_access_count)
     WTip.last_access = datetime.datetime.now()
     WTip.access_count = (1 + WTip.access_count)

@@ -42,6 +42,16 @@ class Submission:
         """
         return False
 
+    def upload_file(self, request):
+        """
+        Process the upload of a file.
+        """
+        response = {'filename': 'XXXXX',
+                    'comment': 'XXXX',
+                    'size': 1000,
+                    'content-type': 'XXXX'}
+        return response
+
     def add_material(self, material):
         """
         Adds the material to the specified submission id.
@@ -74,6 +84,26 @@ class Submission:
         Finalize the submission and create data inside of the database.
         """
         return True
+
+    def get_status(self):
+        status = {'material':
+                      {'date': 'XXXX',
+                      'files':
+                          [{'filename': 'XXXXX', 'comment': 'XXXXX',
+                           'size': 1000,
+                           'content-type': 'XXXXX',
+                          },
+                          {'filename': 'XXXXX', 'comment': 'XXXXX',
+                           'size': 1000,
+                           'content-type': 'XXXXX',
+                          }]
+                       },
+                  'groups': {'group-one': True, 'group-two': False,
+                            'group-three': False},
+                  'fields': {'field_name1': 'XXXXX',
+                            'field_name2': 'XXXXX',}
+                }
+        return status
 
 class SubmissionFactory:
     submissions = {}

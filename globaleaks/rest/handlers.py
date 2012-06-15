@@ -7,73 +7,176 @@
     by the particular REST interface.
 """
 import json
+
 import cyclone.web
 from twisted.web import resource
 from globaleaks.config import config
 from globaleaks.submission import submission_factory
 
 __all__ = ['nodeHandler','submissionHandler',
-           'adminReceiversHandler', 'nodeConfigHandler',
-           'deliveryConfigHandler', 'storageConfigHandler',
-           'addCommentHandler', 'pertinenceHandler',
-           'downloadMaterialHandler', 'addDescriptionHandler', 'tipHandler']
+           'adminHandler', 'tipHandler', 'receiverHandler']
 
-class nodeHandler(cyclone.web.RequestHandler):
+class GLHandler(cyclone.web.RequestHandler):
+    def generic_error(self):
+        self.write({'error': 'generic'})
+
+class nodeHandler(GLHandler):
     def get(self):
         self.write(config.node_info)
 
-class submissionHandler(cyclone.web.RequestHandler):
-    def post(self, submission_id=None):
-        if not submission_id:
-            response = submission_factory.create()
-            self.write(response)
+class submissionHandler(GLHandler):
+    """
+    Responsible for handling everything that goes under the /submission
+    tree.
+    """
+    def initialize(self, action=None):
+        self.action = action
+        print action
+
+    def _parse_request(self):
+        try:
+            request = json.loads(self.request.body)
+        except:
+            request = None
+        return request
+
+    def invalid_submission(self):
+        self.set_status(204)
+        r = {'error-code': 1, 'error-message': 'submission ID is invalid'}
+        self.write(r)
 
     def get(self, submission_id=None):
-        self.write(str(self.__class__))
+        """
+        Process GET requests:
+            * /submission
+            * /submission/<ID>
+            * /submission/<ID>/upload_file
+        """
+        if submission_id:
+            submission = submission_factory.submissions.get(submission_id)
+            if submission is None:
+                self.invalid_submission()
+            else:
+                process = getattr(self, "get_" + self.action)
+                response = process(submission)
+        else:
+            self.set_status(501)
 
-class adminReceiversHandler(cyclone.web.RequestHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def get_submission_status(self, submission):
+        self.set_status(200)
+        self.write(submission.get_status())
 
-class nodeConfigHandler(cyclone.web.RequestHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post(self, submission_id=None, other=None):
+        """
+        Process POST requests:
+            * /submission
+            * /submission/<ID>/submit_fields
+            * /submission/<ID>/add_group
+            * /submission/<ID>/finalize
+            * /submission/<ID>/upload_file
+        """
+        response = ""
+        if not submission_id:
+            response = self.post_create_submission()
+        elif self.action:
+            submission = submission_factory.submissions.get(submission_id)
+            if submission is None:
+                self.invalid_submission()
+            else:
+                request = self._parse_request()
+                process = getattr(self, "post_" + self.action)
+                response = process(submission, request)
 
-class deliveryConfigHandler(cyclone.web.RequestHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post_create_submission(self):
+        """
+        This creates an empty submission and returns the ID to be used when
+        referencing it as a whistleblower. ID is a random string.
+        """
+        self.set_status(201)
+        self.write(submission_factory.create())
 
-class storageConfigHandler(cyclone.web.RequestHandler):
-    def get(self, request):
-        self.write(str(self.__class__))
+    def post_submit_fields(self, submission, request):
+        """
+        does the submission of the fields that are supported by the node in
+        question and update the selected submission_id (POST only)
+        """
+        submission.submit_fields(request)
+        self.set_status(202)
 
-# Tip Handlers
 
-class addCommentHandler(cyclone.web.RequestHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__) + "<br>" + parameter)
+    def post_add_group(self, submission, request):
+        """
+        adds a group to the list of recipients for the selected submission.
+        group are addressed by their ID (POST only)
+        """
+        submission.add_group(request)
+        self.set_status(202)
 
-class pertinenceHandler(cyclone.web.RequestHandler):
+    def post_finalize(self, submission, request):
+        """
+        completes the submission in progress, give to the server the receipt
+        secret and confirm the receipt (or answer with a part of them).
+        settings dependent. (POST only)
+        """
+        submission.finalize(request)
+
+    def post_upload_file(self, submission, request):
+        """
+        upload a file to the selected submission_id (PUT only)
+        """
+        submission.upload_file(request)
+
+class adminHandler(GLHandler):
+    def post(self):
+        """
+        Process these POST requests:
+            * /admin/receivers/
+            * /admin/notification/
+            * /admin/delivery/
+            * /admin/storage/
+            * /admin/node/
+        """
+        pass
+
     def get(self):
-        self.write(str(self.__class__) + "<br>" + parameter)
-
-class downloadMaterialHandler(cyclone.web.RequestHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__) + "<br>" + parameter)
-
-class addDescriptionHandler(cyclone.web.RequestHandler):
-    def get(self, request, parameter):
-        self.write(str(self.__class__))
-
-tipAPI = {'download_material': downloadMaterialHandler,
-          'add_comment': addCommentHandler,
-          'pertinence': pertinenceHandler,
-          'add_description': addDescriptionHandler}
+        """
+        Process GET requests:
+            * /admin/receivers/
+            * /admin/notification/
+            * /admin/delivery/
+            * /admin/storage/
+            * /admin/node/
+        """
+        pass
 
 
-class tipHandler(cyclone.web.RequestHandler):
+class receiverHandler(GLHandler):
     def get(self):
-        self.write("tip")
+        """
+        Process this GET:
+            * /receiver/<ID>/overview
+        """
+    def post(self):
+        """
+        Process this POST:
+            * /receiver/<ID>/overview
+        """
 
+class tipHandler(GLHandler):
+    def post(self):
+        """
+        Process the POST requests:
+            * /tip/<ID>/add_comment
+            * /tip/<ID>/finalize_update
+            * /tip/<ID>/pertinence
 
-
+        """
+        pass
+    def get(self):
+        """
+        Process the GET requests:
+            * /tip/<ID>
+            * /tip/<ID>/update_file
+            * /tip/<ID>/download_material
+        """
+        pass
