@@ -142,8 +142,6 @@ class Tip(TXModel):
         pass
 
 class ReceiverTip(Tip):
-    __storm_table__ = 'receivertip'
-
     total_view_count = Int()
     total_download_count = Int()
     relative_view_count = Int()
@@ -163,13 +161,13 @@ class ReceiverTip(Tip):
 
 class WhistleblowerTip(Tip):
 
-    __storm_table__ = 'wbtip'
     def add_material(self):
         pass
 
 
 class Node(TXModel):
     __storm_table__ = 'node'
+
     id = Int(primary=True)
 
     context = Pickle()
@@ -181,6 +179,8 @@ class Node(TXModel):
     hidden_service = Unicode()
 
 class Receiver(TXModel):
+    __storm_table = 'receivers'
+
     public_name = Unicode()
     private_name = Unicode()
 
