@@ -1,8 +1,10 @@
+from zope.interface import implements
 # datatype include ModuleConf
 from globaleaks.core.datatypes import *
-from globaleaks.receiver_extension.Super import Delivery
+from globaleaks.receiver_extension.interfaces import Delivery
 
-class BaseDelivery(Delivery):
+class BaseDelivery:
+    implements(Delivery)
 
     def delivery_name(self):
         # TODO - need to be returned a Localized Dict
@@ -56,7 +58,7 @@ class BaseDelivery(Delivery):
 
     def do_notify(self, receiver, material):
         """
-        This method is called for every receiver, need to be implemented 
+        This method is called for every receiver, need to be implemented
         when receiver and material ORM interaction are ready
         """
         pass
