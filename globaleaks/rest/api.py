@@ -6,8 +6,6 @@ import cyclone.web
 #from globaleaks.stats import statsHandler
 #from globaleaks.admin import adminHandler
 from globaleaks.rest.handlers import *
-from globaleaks.rest.utils import processChildren
-
 
 class GLBackendAPI(cyclone.web.Application):
     def __init__(self):
