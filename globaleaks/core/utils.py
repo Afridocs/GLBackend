@@ -1,4 +1,8 @@
-from Crypto.Random import random
+try:
+    from Crypto.Random import random
+except:
+    print "WARNING: PyCrypto not installed. Will use unsafe random function!"
+    import random
 
 def random_string(length, type):
     """

@@ -1,5 +1,5 @@
 from globaleaks.core import datatypes
-from globaleaks.receiver_extension.Delivery_Base import *
+from globaleaks.receiver_extension.DeliveryBase import *
 
 testB = BaseDelivery()
 

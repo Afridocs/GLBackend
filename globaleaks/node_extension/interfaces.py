@@ -1,25 +1,8 @@
+from zope.interface import Interface
 
-class Storage:
-
-    def storage_name():
-        print "error: superclass never need to be called"
-
-    def get_admin_opt():
-        print "error: superclass never need to be called"
-
-    def set_admin_opt(module_admin_config):
-        pass
-
-    def init():
-        """
-        this function is called at every start of GLBackend when
-        the module has been configured and enabled.
-        returning False here would be a FATAL error
-        """
-        pass
-
+class IStorage(Interface):
     """
-    Storage return file hanler overriding the common file object,
+    Storage Interface return file hanler overriding the common file object,
     KEYWORDS:
 
         @resource: a directory, an identificative able to track multiple files
@@ -27,11 +10,36 @@ class Storage:
         @fileid: the identificative of the file
     """
 
+    def storage_name():
+        """
+        XXX
+        What does this do?
+        Should this not be an attribute?
+        """
+
+    def get_admin_opt():
+        """
+        XXX
+        What does this do?
+        """
+
+    def set_admin_opt(module_admin_config):
+        """
+        XXX
+        What does this do?
+        """
+
+    def init():
+        """
+        this function is called at every start of GLBackend when
+        the module has been configured and enabled.
+        returning False here would be a FATAL error
+        """
+
     def check_resource(resource):
         """
         return True if the resource exists, or False if not
         """
-        pass
 
     def list_resource(resource):
         """

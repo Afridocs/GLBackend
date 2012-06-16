@@ -12,3 +12,13 @@ For an overview of the GlobaLeaks architecture check out the
 `Architecture <docs/architecture.rst>`_ doc.
 
 
+Development
+===========
+
+To start using this code repo, do the following, from the root of the project
+(/):
+
+`export PYTHONPATH=`pwd``
+
+`python globaleaks/backend.py`
+
