@@ -3,7 +3,7 @@ The class implemented here defines the basic objects, specified
 in REST-spec
 """
 
-import os # required in GlbFile
+import os # temporarily required in GlbFile
 import json # required in ModuleAdminConfig and ModuleDataStruct
 
 class GlbFile:
@@ -24,8 +24,12 @@ class GlbFile:
         self.filename = newname
 
     def get_size(self):
+        # ----------------------------------------------
+        # ERROR: need to be uniformed with Storage stats,
+        # because stored file may not me checked with os.*
         if os.access(self.filename, os.R_OK):
             self.filestats = os.stat(self.filename)
+        # ----------------------------------------------
             return (self.filestats.st_size, self.finalized)
         else:
             # TODO log system error handling
