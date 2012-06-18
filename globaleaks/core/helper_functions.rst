@@ -29,12 +29,15 @@ contain utiliy function useful in various part of GLbackend logic,
 random_string
 `````````````
 
-return a cryptographically secure printable string, taking the parameters:
+return a cryptographically secure random string, composed by printable
+ASCII code. Take the parameters:
 
     :length: the length of the random string
     :type: needs to be passed as comma separated ranges or values,
            ex. "a-z,A-Z,0-9".
 
+If PyCrypto is not installed, the generated random string shall not
+be considered 'secure'.
 
 Receivers
 ---------

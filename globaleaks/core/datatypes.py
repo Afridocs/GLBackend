@@ -70,22 +70,31 @@ The module shall be splitted in two kinds:
 """
 class ModuleConf:
 
+
     def __init__(self, infos):
         self.name = infos[0]
         self.description = infos[1]
-        self.builddict = ({'module-name' : self.name, 'service-message' : self.description})
+        self.fields =[ ['module-name', self.name],['service-message', self.description] ]
 
+    """
+    Every field has the following sequenced values:
+    NAME, TYPE, DESCRIPTION, DEFAULT_VALUE, REAL_VALUE
+
+    the mandatories field are NAME and TYPE
+    """
     def add_bool(self, name, description, default=None):
-        self.builddict.update({ 'checkbox': name, 'desc': description, 'default' : default})
+        self.fields += [[name, 'checkbox', description, default, None]]
 
     def add_password(self, name, description, default=None):
-        self.builddict.update({ 'password': name, 'desc': description, 'default' : default})
+        self.fields += [[name, 'password', description, default, None]]
 
     def add_text(self, name, description, default=None):
-        self.builddict.update({ 'text': name, 'desc': description, 'default' : default})
+        self.fields += [[name, 'text', description, default, None]]
 
     def get_json(self):
-        return json.dumps(self.builddict)
+        # I need to undertand if is the right sequence, maybe wrong:
+        # json.dumps confert list in str, json.loads convert str in json
+        return json.loads(json.dumps(self.fields))
 
     def acquire(self, expected_struct, received_json_data):
         print 'expected ' + str(type(expected_struct))
