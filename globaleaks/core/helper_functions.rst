@@ -84,7 +84,19 @@ Instance the object with the descriptio
 All the previous functions collect the requested field in a nested dict() construct, 
 the nested dict as the form of:
 
-[ fieldName, [ Type, Description, Default, Value ] ]
+[ [ fieldName, Type, Description, Default, Value ] ]
+
+The Type may have different meanings, and represent different <input> element or 
+different css/syle. Actually has been provided:
+
+    text (like <input type="text" />)
+    immutable_text (every description, and some informative field)
+    textarea (like <textarea /> ()
+    bool (like <input type="checkbox" />)
+    password (like <input type="password" />)
+
+May be extended during the develoment (check interface.py and datatypes.py)
+
 
     get_json()
 

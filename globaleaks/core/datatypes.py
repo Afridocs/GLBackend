@@ -91,6 +91,15 @@ class ModuleConf:
     def add_text(self, name, description, default=None):
         self.fields += [[name, 'text', description, default, None]]
 
+    def add_immutable_text(self, name, description, value):
+        if not value:
+            # handle warning - is a developer error
+            pass
+        self.fields += [[name, 'immutable_text', description, None, value ]]
+
+    def add_textarea(self, nae, description, default=None):
+        self.fields += [[name, 'textarea', description, default, None ]]
+
     def get_json(self):
         # I need to undertand if is the right sequence, maybe wrong:
         # json.dumps confert list in str, json.loads convert str in json
@@ -99,8 +108,6 @@ class ModuleConf:
     def acquire(self, expected_struct, received_json_data):
         print 'expected ' + str(type(expected_struct))
         print 'received ' + str(type(received_json_data))
-
-
 
 
 # TODO
