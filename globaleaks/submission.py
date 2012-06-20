@@ -13,7 +13,7 @@ class Submission:
     factory = None
     fields = None
 
-    materialset = []
+    files = []
     groups = []
 
     id_len = 100
@@ -52,15 +52,6 @@ class Submission:
                     'content-type': 'XXXX'}
         return response
 
-    def add_material(self, material):
-        """
-        Adds the material to the specified submission id.
-
-        :material: append the material to the material set
-        """
-        self.materialset.append(material)
-        return True
-
     def submit_fields(self, fields):
         """
         Add the fields to the submission.
@@ -83,6 +74,7 @@ class Submission:
         """
         Finalize the submission and create data inside of the database.
         """
+        self.factory.pop(self.id)
         return True
 
     def get_status(self):

@@ -2,7 +2,6 @@ from zope.interface import Interface, Attribute
 from twisted.internet import defer
 from twisted.internet import reactor
 
-
 import itertools
 
 class TaskQueue(object):
