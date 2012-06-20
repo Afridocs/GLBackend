@@ -20,8 +20,9 @@ ID is a random 64bit integer (POST only)
 
 `/submission/<submission_id>`
 
-Returns the currently submitted fields and material filenames and size, this
+Returns the currently submitted fields, filenames and size, this
 is the only interface giving back the complete submission status (GET only)
+all the files submitted now are part of the first Folder.
 
 `/submission/<submission_id>/submit_fields`
 
@@ -62,29 +63,31 @@ Both WB and Receiver can write a comment in a Tip (POST only)
 
 `/tip/<string t_id>/update_file`
 
-Update material available for download, a new material has resetted 
-counter for download limits. 
-The material is published when 'finalized'. (PUT, GET, DELETE)
+Update folder available for download, a new folder has empty
+counter for download limits.
+The folder is published when 'finalized'. (PUT, GET, DELETE)
 
 `/tip/<string t_id>/finalize_update`
 
 Used to add a description in the uploaded files. 
 This action make the new uploaded data available for download. 
-If this action is missed, the material can be published after a timeout expiring 
-at midnight (MAY BE REVIEWED) (POST only)
+If this action is missed, the folder can be published after a timeout expiring.
+Timeout is set in /admin/node (POST only)
 
 ### tip subsection (API Receivers only)
 
-`/tip/<string t_id>/download_material`
+`/tip/<string t_id>/download_folder`
 
-This interface can be disabled by delivery configuration.
+used to download the folder from a submission. 
+if a download limit has been configured, return a content 
+only if relative download count is < max_downloads (GET only).
 
-used to download the material from the
-submission. if a download limit has been configured, can be requested
-only if relative download count is < max_downloads (POST only).
+Paramters inside the POST specify which Folder is requested. The
+Folder is provided in the format choosen by the node administrator, or
+as the receiver has set the proference in the delivery method.
 
-Paramters inside the POST specify which Material Set and the requested
-mode (compressed, encrypted)
+This interface can be not used if delivery configuration provide 
+a different dispatching method for ship the folder.
 
 `/tip/<string t_id>/pertinence`
 
@@ -118,10 +121,12 @@ For setting up delivery and notification modules. perform host dependent
 configuration.
 
 `/admin/storage`
-`/admin/filtering`
+`/admin/input`
 
 For setting up storage technology, implemented by an extensible class.
 and for configuring filtering policies, implemented by extensible class.
+enable CAPTCHA, set timeout required in `/submission/<t_id>/finalize_upload`,
+enable module of input filtering (antimalware, anomaly detection, etc)
 
 # Synthesis 
 
@@ -138,7 +143,7 @@ and for configuring filtering policies, implemented by extensible class.
 `/tip/<string t_id>/add_comment`
 `/tip/<string t_id>/update_file`
 `/tip/<string t_id>/finalize_update`
-`/tip/<string t_id>/download_material`
+`/tip/<string t_id>/download_folder`
 `/tip/<string t_id>/pertinence`
 
 `/receiver/<string t_id>/overview`
@@ -323,15 +328,15 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
     :GET
         Returns the currently:
             submitted fields 
-            material filenames and size,
-            group selection status
+            folder name, file content, description  and size,
+            groups selected
 
         This is the only interfaces which return the entire status of the submission.
         the time is not yet finalized, therefore is saved the time of the first upload
 
         * Response:
 
-          [ 'material-date': <DATE, 32bit time value>,
+          [ 'folder-date': <DATE, 32bit time value>,
            { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> }
            { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> }
           ], [
@@ -469,12 +474,12 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
             'comments': [{'name': <string name of the commenter>,
                           'date': <DATE 32 bit time_t>,
                           'comment': <string content of the comment> },]
-            'material-sets': [{
-                    'id': <string the id of the material set>,
-                    'link': <string link to download the material>,
+            'folders': [{
+                    'id': <string the id of the folder>,
+                    'link': <string link to download the folder>,
                     'files': [ { filename: <string>, comment: <String>, 
                                 size: <Int, in bytes>, content-type: <string> } ], 
-                    'desc': <String, Description of the material> }]
+                    'desc': <String, Description of the folder> }]
             'statistics': [{'name': <string name of the receiver>,
                             'group': <string, group of the receiver>,
                             'downloads': <Int download count>,
@@ -514,20 +519,20 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
 
 `/tip/<string t_id>/update_file` (Wb only)
 
-    perform update operations. If a Material Set has been started, the file is appended
-    in the same pack. A Material Set is closed when the `finalize_update` is called.
+    perform update operations. If a Folder has been started, the file is appended
+    in the same pack. A Folder is closed when the `finalize_update` is called.
 
     :GET
         return the unfinalized elements accumulated by the whistleblower. The unfinalized
-        material are promoted as 'Set' if the WB do not finalize them before a configurable
-        timeout.
+        folder is finalized if the WB do not before a certain configurable timeout
+        (example: 6-12 hours, when may seem that the receiver has forget to finalize)
 
         * Request: /
         * Response:
-        every object is repeated for every "NOT YET finalized Material Set":
+        every object is repeated for every "NOT YET finalized Folder":
         [ 
-          'finalized-material-date': <DATE, 32bit time value>,
-          'description': <String, description of the Material Set>,
+          'folder-creation-date': <DATE, 32bit time value>,
+          'description': <String, description of the Folder >,
          { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> },
          { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> }
         ]
@@ -562,12 +567,12 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
 
 `/tip/<string t_id>/finalize_update` (Wb only)
 
-    Used to add description in the Material set not yet completed (optional)
-    Used to complete the files upload, completing the Material Set.
+    Used to add description in the Folder not yet completed (optional)
+    Used to complete the files upload, completing the Folder .
 
     :POST
         * Request:
-        { 'description': <String, optional description of the Material Set> },
+        { 'description': <String, optional description of the Folder > },
         { 'finalize': True }
 
         * Response:
@@ -577,15 +582,15 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
         _ Error handling as per `/tip/<string t_id>/`
 
 
-`/tip/<string t_id>/download_material` (Rcvr only)
+`/tip/<string t_id>/download_folder` (Rcvr only)
 
-    used to download the material from the
+    used to download the folder from the
     submission. Can only be requested if the user is a Receiver and the
     relative download count is < max_downloads.
 
     :GET
         * Request:
-        {'id': <material_set_id>, 'option-format': (encrypt|compressed) }
+        {'id': <folder_id>}
 
         * Response:
         Stauts Code: 200 (OK)
@@ -618,7 +623,7 @@ and contain the optional fields (empty or compiled), this interface permit the s
 deletetion of the receiver from the list.
 
 suspent is a temporary status that disable notification and delivery.
-delete clean all receiver data and destinated material, submission.
+delete clean all receiver data and destinated folder, submission.
 
 depends from the node administator choose and delivery/notification extension, the capability
 to be configured by the user.
@@ -629,9 +634,11 @@ to be configured by the user.
        * Response:
          Stauts Code: 200 (OK)
          {
-             'url-schema': <String, url [tor2web|https|.onion] used, and relative path>
-             'tip-list': { [ 'tip-token': <T_id>, 'tip-title': <String> ],
-                           [ 'tip-token': <T_id>, 'tip-title': <String> ] },
+             'public_site': "String, public URL of the site, if available",
+             'tor2web': <String, public URL of tor2web trusted entry point, if available>,
+             'hidden_service': <String, .onion service, if available>,
+             'tip-list': [ { 'tip-token': <T_id>, 'tip-title': <String> },
+                           { 'tip-token': <T_id>, 'tip-title': <String> } ],
              'notification-method': { <ModuleDataStruct>, <ModuleDataStruct>, ... },
              'delivery-method': { <ModuleDataStruct>, <ModuleDataStruct>, ... },
              'receiver-properties': <RDict>,
@@ -827,8 +834,8 @@ detection)
                'hidden_service': <String, .onion service, if available>,
                'preference_settings': [ Array, lists of options related in
                                         Tip management, like:
-                                        max download available per Material Set,
-                                        maximum time for finalize a Material,
+                                        max download available per Folder,
+                                        maximum time for finalize a Folder,
                                         whistleblowers can delete
                                         whistleblowers can select groups ]
              }
@@ -856,8 +863,8 @@ detection)
                'hidden_service': <String, .onion service, if available>,
                'preference_settings': [ Array, lists of options related in
                                         Tip management, like:
-                                        max download available per Material Set,
-                                        maximum time for finalize a Material,
+                                        max download available per Folder Set,
+                                        maximum time for finalize a Folder,
                                         whistleblowers can delete
                                         whistleblowers can select groups ]
              }

@@ -60,21 +60,30 @@ class GlbFile:
 
         return ret
 
-"""
-This class provide a support for the developer who wrote module for GLBackend
-The module shall be splitted in two kinds:
-    1) module with admin configuration and receiver configuration
-    2) module with admin configuration only
-
-    this class provide the I/O object to interact between REST, ORM and extension modules
-"""
 class ModuleConf:
+    """
+    This class provide a support for the developer who wrote module for GLBackend
+    The module shall be splitted in two kinds:
+        1) module with admin configuration and receiver configuration
+        2) module with admin configuration only
 
+        this class provide the I/O object to interact between REST, ORM and extension modules
+    """
 
     def __init__(self, infos):
         self.name = infos[0]
         self.description = infos[1]
         self.fields =[ ['module-name', self.name],['service-message', self.description] ]
+
+    def get_json(self):
+        # I need to undertand if is the right sequence, maybe wrong:
+        # json.dumps confert list in str, json.loads convert str in json
+        return json.loads(json.dumps(self.fields))
+
+    def acquire(self, expected_struct, received_json_data):
+        print 'expected ' + str(type(expected_struct))
+        print 'received ' + str(type(received_json_data))
+
 
     """
     Every field has the following sequenced values:
@@ -99,15 +108,6 @@ class ModuleConf:
 
     def add_textarea(self, nae, description, default=None):
         self.fields += [[name, 'textarea', description, default, None ]]
-
-    def get_json(self):
-        # I need to undertand if is the right sequence, maybe wrong:
-        # json.dumps confert list in str, json.loads convert str in json
-        return json.loads(json.dumps(self.fields))
-
-    def acquire(self, expected_struct, received_json_data):
-        print 'expected ' + str(type(expected_struct))
-        print 'received ' + str(type(received_json_data))
 
 
 # TODO

@@ -39,6 +39,10 @@ Glossary
 
 `Delivery`_: Method used by receiver to download the submitted material, Every Receiver and the NodeAdmin may modify delivery settings.
 
+`Folder`_: a container of submitted files. A whistlebower create a
+submission with one or less folder, and further update would be in
+different folder. Folder contain creation data, description provided
+by the WhistleBlower.
 
 Overview
 ========
@@ -90,8 +94,8 @@ optionally send the submission identifier that has been generated
 in the material upload phase.
 
 
-Material
-````````
+Folder
+``````
 
 Though this interface material can be loaded on the Node and
 associated with a submission. If a submission id is not supplied
@@ -103,17 +107,20 @@ an asymetric crypto system.
 Storage
 -------
 
-GlobaLeaks should support various different storage mechanisms
+GlobaLeaks should support various different storage mechanisms,
+and is built to be modular.
+
 The storage interface should be designed in a way that it
 is agnostic to the underlying system that will be used to
 save the information.
-If specified the node administrator should be able to configure
-that the infomration stored on the node is encrypted with
-his symetric key or the public keys of all the receivers.
+Storage is the data collection metodhs set by administrator, 
+and affect the entire system.
+Storage can't be affected by receiver or users, it
+cover database files and filesysytem usage.
 
 Possible storage systems that should be implemented are:
-Locally to drive, SCP, online file storage services,
-tahoe-lafs.
+Locally to drive tahoe-lafs, encrypted filesysyem,
+remote NFS, mirrored filesystem.
 
 Status Page
 -----------
@@ -152,17 +159,52 @@ Security
 
 TODO.
 
-Notification and Delivery
--------------------------
+Notification
+------------
 
-The notification and delivery system is built to be modular. Notification and
-delivery systems are configured and setup by the node administrator. Once the
-delivery of the submission is completed the notification of it is fired and put
-into the notification queue. The notification queue can either be flushes
-immediately (if the receiver is configured to receive real-time notifications)
-or after a certain threshold is reached (if the receiver has been configured to
-receive notification digests).
+The notification system provides a signaling method for notifying 
+a receiver of a new Tip.
 
+The notification system is built to be modular, because different
+GlobaLeaks installation may require different capabilities, system
+interactions and features offered.
+
+The notification systems available are setup by the node administrator,
+the reciptiens may choose and configure which notification system to 
+use.
+
+Possible notification modules can be:
+a REST support to notify a third party ticketing system,
+a key/password manager to provide encrypted notification,
+Twitter support: DM to the recipient.
+Text message (SMS) notification for new Tip/Folder available.
+
+The notification event MAY spool to a notifiction queue.
+The notification queue can either be flushes immediately (if the 
+receiver is configured to receive real-time notifications) or after a 
+certain threshold is reached (if the receiver has been configured to
+receive notification digests). This threshold settings is an option
+notification dependent.
+
+Delivery
+--------
+
+The delivery system is built to be modular. 
+Delivery provide the spooling, or the storing policies, of the Folders. 
+A node administrato may set system wide policies, and if the module
+permit, a receiver would select personal preferences.
+
+Possibile delivery modules can be:
+
+If specified the node administrator should be able to configure
+that the infomration stored on the node is encrypted with
+his symetric key or the public keys of all the receivers.
+
+Possible storage systems that should be implemented are:
+Locally to drive, SCP, online file storage services,
+tahoe-lafs.
+
+the delivery event MAY use a queue, to handle retries and 
 
 GLClient
 ========
