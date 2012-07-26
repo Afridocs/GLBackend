@@ -1,6 +1,6 @@
 # Summary
 
-This is a breif summary of the REST API specification.
+This is a brief summary of the REST API specification.
 
 ## Public API
 
@@ -9,10 +9,10 @@ This is a breif summary of the REST API specification.
 `/node/`
 
 Returns information on the GlobaLeaks node. This includes
-submission paramters and how information should be presented
-by the client side application.
+submission parameters and how information should be presented
+to the user in the front-end (GLClient).
 
-`/submission`
+`/submission/`
 
 This creates an empty submission and returns the ID
 to be used when referencing it as a whistleblower.
@@ -21,22 +21,21 @@ ID is a random 64bit integer (POST only)
 `/submission/<submission_id>`
 
 Returns the currently submitted fields, filenames and size, this
-is the only interface giving back the complete submission status (GET only)
-all the files submitted now are part of the first Folder.
+is the only interface giving back the complete submission status (GET only).
 
 `/submission/<submission_id>/submit_fields`
 
-does the submission of the fields that are supported by
-the node in question and update the selected submission_id (POST only)
+Submits the fields supported by the node and updates the chosen submission_id
+(POST only).
 
 `/submission/<submission_id>/add_group`
 
-adds a group to the list of recipients for the selected
-submission. group are addressed by their ID (POST only)
+Adds a group to the list of recipients for the selected
+submission. Groups are addressed by their ID (POST only)
 
 `/submission/<submission_id>/finalize`
 
-completes the submission in progress, **give to the server the receipt secret**
+Completes the submission in progress, **gives to the client the receipt secret**
 and confirm the receipt (or answer with a part of them). settings dependent.
 (POST only)
 
@@ -52,7 +51,7 @@ Returns the content of the submission with the specified ID.
 Inside of the request headers, if supported, the password for accessing
 the tip can be passed. This returns a session token that is then
 used for all future requests to be authenticated. supports
-GET (all status data), POST (comment and pertinence), DELETE tip (if 
+GET (all status data), POST (comment and pertinence), DELETE tip (if
 permitted by configuration)
 
 `/tip/<string t_id>/add_comment`
@@ -69,8 +68,8 @@ The folder is published when 'finalized'. (PUT, GET, DELETE)
 
 `/tip/<string t_id>/finalize_update`
 
-Used to add a description in the uploaded files. 
-This action make the new uploaded data available for download. 
+Used to add a description in the uploaded files.
+This action make the new uploaded data available for download.
 If this action is missed, the folder can be published after a timeout expiring.
 Timeout is set in /admin/node (POST only)
 
@@ -78,15 +77,15 @@ Timeout is set in /admin/node (POST only)
 
 `/tip/<string t_id>/download_folder`
 
-used to download the folder from a submission. 
-if a download limit has been configured, return a content 
-only if relative download count is < max_downloads (GET only).
+used to download the folder from a submission.
+if a download limit has been configured, return a content
+only if relative download count is less than max_downloads (GET only).
 
 Paramters inside the POST specify which Folder is requested. The
 Folder is provided in the format choosen by the node administrator, or
 as the receiver has set the proference in the delivery method.
 
-This interface can be not used if delivery configuration provide 
+This interface can be not used if delivery configuration provide
 a different dispatching method for ship the folder.
 
 `/tip/<string t_id>/pertinence`
@@ -105,8 +104,8 @@ the receiver.
 
 `/admin/receivers/`
 
-Interact with the current receivers list, the GET is supported and 
-not intended to be redoundand with GET /node/, because maybe the 
+Interact with the current receivers list, the GET is supported and
+not intended to be redoundand with GET /node/, because maybe the
 public output shall be different from the admin capability of view (GET, POST)
 
 `/admin/node`
@@ -128,7 +127,7 @@ and for configuring filtering policies, implemented by extensible class.
 enable CAPTCHA, set timeout required in `/submission/<t_id>/finalize_upload`,
 enable module of input filtering (antimalware, anomaly detection, etc)
 
-# Synthesis 
+# Synthesis
 
 `/node/`
 
@@ -168,7 +167,7 @@ file descriptor, every completed file upload is always stored and represented wi
     { 'FR' : 'je suis Mario!' }
 
 
-<RDict>, an object of boolean values, expressing the permissions given to a receiver, 
+<RDict>, an object of boolean values, expressing the permissions given to a receiver,
          They need to be specified separately. Possible permissions can be:
          . can delete a submission (not just a Tip)
          . can postopone expiration date
@@ -177,9 +176,9 @@ file descriptor, every completed file upload is always stored and represented wi
 
 <NDict>, an object of booleand values, expressing the properties of the node,
          They need to be specified separately.
-         Those properties likey can be communicated to an external directory 
+         Those properties likey can be communicated to an external directory
          (LeakDirectory) and express the safety, the features and the reliability
-         of a GL node. 
+         of a GL node.
          Possible properties can be:
          . end to end encryption enforced,
          . are receivers part of the admin group ?
@@ -193,22 +192,22 @@ file descriptor, every completed file upload is always stored and represented wi
 (implemented in globaleaks/core/datatypes.py) object of ModuleConf.
 ModuleConf objects are JSON description useful to present at the user
 (admin or recever) the amount of available field. Those objects can be
-filled properly, verified and accepted by the extension plugin. 
+filled properly, verified and accepted by the extension plugin.
 
-the fields that NEED to be present in the json struct, 
+the fields that NEED to be present in the json struct,
 object ModuleAdminConf, are:
 
     The data sets by administrator:
 
-    [ 'name': <String, the short name of the module>, 
-      'activate': <Bool, the admin selection of enable the module or not>, 
+    [ 'name': <String, the short name of the module>,
+      'activate': <Bool, the admin selection of enable the module or not>,
       'receiver-disable': <Bool, can the receiver disable this module ?>,
       'service-message': <String, the short description of the message, or hiht about the activation and options>
         # optional
       'options': <Json object with empty field or default values>,
     ]
 
-IF the admin has activate the module and 
+IF the admin has activate the module and
 IF the admin permit the receiver to enable/disable the module
 IF the module supports receiver options,
 
@@ -222,8 +221,9 @@ ModuleAdminConfig is used in the REST of /admin/* path, ModuleDataStruct in /rec
 
 ### Addictional resources:
 
-Object specification [[GLBackend/docs/Obj-spec-latest.png]]
-Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
+    * Object specification [[GLBackend/docs/Obj-spec-latest.png]]
+
+    * Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
 
 ### GLBackend REST specification
 
@@ -246,9 +246,9 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
               'contexts': [
                            {'name': <LocaLDict name of context>,
                             'groups': [
-                              { 'id': <Int>, 'description' : '<LocaLDict description>', 
+                              { 'id': <Int>, 'description' : '<LocaLDict description>',
                                'name' : '<LocaLDict title>', lang: '<Array, list of supported lang>' }
-                              { 'id': <Int>, 'description' : '<LocaLDict description>', 
+                              { 'id': <Int>, 'description' : '<LocaLDict description>',
                                'name' : '<LocaLDict title>', lang: '<Array, list of supported lang>' } ]
                             'fields': [
                               { 'name' : <LocaLDict field>, type: (txt|int|img), 'Required': <Bool> },
@@ -266,7 +266,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
               'node-properties': <end2end_encryption: Yes, Anonymous_receiver: Yes>,
               'contexts': [
                             { 'name' : 'Heisenberg sightings',
-                              'groups' : [ 
+                              'groups' : [
                                     { 'id' : 0, name : 'police', description: 'Our national strength',
                                         lang: 'EN, ES' },
                                     { 'id' : 1, name : 'vigilantes', description: 'Batman progeny',
@@ -327,7 +327,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
 
     :GET
         Returns the currently:
-            submitted fields 
+            submitted fields
             folder name, file content, description  and size,
             groups selected
 
@@ -340,7 +340,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
            { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> }
            { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> }
           ], [
-           { group-one: True, group-two: False, group-three: True } 
+           { group-one: True, group-two: False, group-three: True }
           ], [
            {'field_name1': <content>},
            {'field_name2': <content>}
@@ -388,17 +388,17 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
           { error-code: <Int>, error-message: 'submission ID is invalid' }
 
 
-`/submission/<submission_id>/finalize`, 
+`/submission/<submission_id>/finalize`,
 
     :POST
-        checks if all the 'Required' fields are present, then 
+        checks if all the 'Required' fields are present, then
         completes the submission in progress and returns a receipt.
 
         * Request:
           { 'choosen-Receipt': <String, user selected receipt> }
 
         * Response:
-          If the receipt is fine with the node requisite, and is saved as 
+          If the receipt is fine with the node requisite, and is saved as
           identificative for the WB Tip, is echoed back to the client
           Status Code: 201 (created)
           { 'Receipt': <String, receipt value> }
@@ -406,10 +406,10 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
         _ If the receipt is expected but is not provided, The submission is
           finalized, and the server create a receipt:
           Status Code: 417 (Expectation Failed)
-          { 
-            'error-code': <Int>, 
+          {
+            'error-code': <Int>,
             'error-message': 'Invalid receipt requested',
-            'Receipt': <String, receipt value> 
+            'Receipt': <String, receipt value>
           }
 
         _ If the field check fail
@@ -421,11 +421,11 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
           { 'error-code': <Int>, 'error-message': 'submission ID is invalid' }
 
 
-`/submission/<submission_id>/upload_file`, 
+`/submission/<submission_id>/upload_file`,
 
     :GET
         return the status of the file uploaded under submission_id,
-        TODO: 
+        TODO:
         REMIND:
             supports resume. Check JQuery FileUploader and their REST/protocol
             FileUploader has a dedicated REST interface to handle start|stop|delete.
@@ -477,8 +477,8 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
             'folders': [{
                     'id': <string the id of the folder>,
                     'link': <string link to download the folder>,
-                    'files': [ { filename: <string>, comment: <String>, 
-                                size: <Int, in bytes>, content-type: <string> } ], 
+                    'files': [ { filename: <string>, comment: <String>,
+                                size: <Int, in bytes>, content-type: <string> } ],
                     'desc': <String, Description of the folder> }]
             'statistics': [{'name': <string name of the receiver>,
                             'group': <string, group of the receiver>,
@@ -530,7 +530,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
         * Request: /
         * Response:
         every object is repeated for every "NOT YET finalized Folder":
-        [ 
+        [
           'folder-creation-date': <DATE, 32bit time value>,
           'description': <String, description of the Folder >,
          { filename: <string>, comment: <String>, size: <Int, in bytes>, content-type: <string> },
@@ -605,7 +605,7 @@ Issue tracking [[https://github.com/globaleaks/GLBackend/issues/3]]
     This can only be done by a receiver that has not yet voted.
 
     :POST
-        * Request: 
+        * Request:
         { 'pertinence-vote': <Bool, True mean +1, False mean -1> }
 
         * Response:
@@ -687,7 +687,7 @@ to be configured by the user.
                      'notification-method': { <ModuleAdminConfig>, <ModuleAdminConfig> },
                      'delivery-method': { <ModuleAdminConfig>, <ModuleAdminConfig> }
                         receiver-properties: <RDict>
-                        group-list: [ 
+                        group-list: [
                                   { 'group-id' : <Int>, 'group-name': <String> },
                                   { 'group-id' : <Int>, 'group-name': <String> }
                                 ],
@@ -701,10 +701,10 @@ to be configured by the user.
 
      :POST
         set the value in few generic fields related to the receiver. If a field is empty,
-        is kept the previous value. ID is required 
+        is kept the previous value. ID is required
         * content:
             {
-               'ID' : <Int>, 'PublicName': <String name>, 'description': <String>, 
+               'ID' : <Int>, 'PublicName': <String name>, 'description': <String>,
                'PrivateName': <String>,
                'group-list': <Pickle, list of group ID>
             }
@@ -720,7 +720,7 @@ to be configured by the user.
         they need to be specified by a dedicated interface, due to their
         modular/flexible nature
 
-        (as default, a freshly created receiver, can have id and date, but 
+        (as default, a freshly created receiver, can have id and date, but
          not yet notification/delivery configured)
 
         * Request:
@@ -736,7 +736,7 @@ to be configured by the user.
             {'ID': <num>}
               Status: 201 (Created)
 
-          If a system error happen: 
+          If a system error happen:
               Status: 404 (Server Error)
 
     :DELETE
@@ -751,12 +751,12 @@ to be configured by the user.
 `/admin/delivery/`
 
 These interface show the available modules for notification and delivery.
-The admin can enable them and configure the host dependent options. 
-<ModuleAdminConfig> is the datatype defined in the section before this 
+The admin can enable them and configure the host dependent options.
+<ModuleAdminConfig> is the datatype defined in the section before this
 (contain some fixed field useful to be printed by the client, a boolean
-value making enable|disale module, and the entire HTML FORM expected to be 
+value making enable|disale module, and the entire HTML FORM expected to be
 filled, or already filled).
-These interface has been separated from the next (storage and filtering) 
+These interface has been separated from the next (storage and filtering)
 because notification & delivery shall contain receiver interaction and
 selection, therefore has been splitted to easily support further changes.
 
@@ -784,7 +784,7 @@ selection, therefore has been splitted to easily support further changes.
 
 Those interface export for the administrator the configuration fields for the
 modules extending both storage classes and filtering classes.
-storage shall handle policy and logic in file and database access, filtering 
+storage shall handle policy and logic in file and database access, filtering
 rules the checks applied in the uploaded files (antivirus, antispam, anomaly
 detection)
 
